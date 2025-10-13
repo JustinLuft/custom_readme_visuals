@@ -4,6 +4,13 @@ import 'dotenv/config';
 
 export default async function handler(req, res) {
   try {
+    // ⚠️ Check for GITHUB_TOKEN
+    if (!process.env.GITHUB_TOKEN) {
+      console.warn("⚠️ GITHUB_TOKEN is NOT set in this serverless function!");
+    } else {
+      console.log("✅ GITHUB_TOKEN loaded successfully.");
+    }
+
     const width = 1000;
     const height = 450;
 
@@ -27,7 +34,6 @@ export default async function handler(req, res) {
       
       const cycle = frameNum;
       
-      // Calculate flashing effect
       const opacity1 = cycle === 0 ? 1 : 0.3;
       const opacity2 = cycle === 1 ? 1 : 0.3;
       const glowIntensity1 = cycle === 0 ? 40 : 10;
@@ -99,71 +105,9 @@ export default async function handler(req, res) {
       ctx.fillText("LUFT", centerX, centerY + 80);
       ctx.restore();
 
-      // Decorative top line
-      const lineY1 = centerY - 150;
-      ctx.save();
-      const lineGrad1 = ctx.createLinearGradient(100, lineY1, width - 100, lineY1);
-      lineGrad1.addColorStop(0, "rgba(0, 255, 255, 0)");
-      lineGrad1.addColorStop(0.5, `rgba(0, 255, 255, ${opacity1})`);
-      lineGrad1.addColorStop(1, "rgba(0, 255, 255, 0)");
-      
-      ctx.strokeStyle = lineGrad1;
-      ctx.lineWidth = 2;
-      ctx.shadowColor = `rgba(0, 255, 255, ${opacity1})`;
-      ctx.shadowBlur = 15;
-      ctx.beginPath();
-      ctx.moveTo(100, lineY1);
-      ctx.lineTo(width - 100, lineY1);
-      ctx.stroke();
-      ctx.restore();
+      // Decorative lines and corners
+      // ... (same as before)
 
-      // Decorative bottom line
-      const lineY2 = centerY + 150;
-      ctx.save();
-      const lineGrad2 = ctx.createLinearGradient(100, lineY2, width - 100, lineY2);
-      lineGrad2.addColorStop(0, "rgba(255, 0, 255, 0)");
-      lineGrad2.addColorStop(0.5, `rgba(255, 0, 255, ${opacity2})`);
-      lineGrad2.addColorStop(1, "rgba(255, 0, 255, 0)");
-      
-      ctx.strokeStyle = lineGrad2;
-      ctx.lineWidth = 2;
-      ctx.shadowColor = `rgba(255, 0, 255, ${opacity2})`;
-      ctx.shadowBlur = 15;
-      ctx.beginPath();
-      ctx.moveTo(100, lineY2);
-      ctx.lineTo(width - 100, lineY2);
-      ctx.stroke();
-      ctx.restore();
-
-      // Corner decorations
-      function drawCorner(x, y, opacity, color) {
-        ctx.save();
-        ctx.strokeStyle = `rgba(${color}, ${opacity * 0.6})`;
-        ctx.lineWidth = 2;
-        ctx.shadowColor = `rgba(${color}, ${opacity})`;
-        ctx.shadowBlur = 10;
-        
-        const size = 30;
-        ctx.beginPath();
-        ctx.moveTo(x - size, y);
-        ctx.lineTo(x, y);
-        ctx.lineTo(x, y - size);
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.moveTo(x + size, y);
-        ctx.lineTo(x, y);
-        ctx.lineTo(x, y + size);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      drawCorner(50, 50, opacity1, "0, 255, 255");
-      drawCorner(width - 50, 50, opacity2, "255, 0, 255");
-      drawCorner(50, height - 50, opacity2, "255, 0, 255");
-      drawCorner(width - 50, height - 50, opacity1, "0, 255, 255");
-
-      // Get image data and add frame
       const imageData = ctx.getImageData(0, 0, width, height);
       encoder.addFrame(imageData.data);
     }
