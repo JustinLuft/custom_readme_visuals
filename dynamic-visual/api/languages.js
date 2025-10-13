@@ -80,7 +80,7 @@ export default async function handler(req, res) {
     ctx.fillText(`📦 ${user.public_repos} Repositories`, 80, 60);
     
     ctx.fillStyle = "rgba(255,255,255,0.5)";
-    ctx.fillText("│", 380, 60);
+    ctx.fillText(" │", 380, 60);
     
     ctx.fillStyle = "#ffffff";
     ctx.fillText(`⭐ ${totalStars} Total Stars`, 420, 60);
