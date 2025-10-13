@@ -1,27 +1,25 @@
-import { createCanvas } from "canvas";
+import { createCanvas, registerFont } from "canvas";
 import { GifEncoder } from "@skyra/gifenc";
 import 'dotenv/config';
+import path from "path";
+
+// Register a Vercel-compatible font
+registerFont(path.join(process.cwd(), "fonts", "CourierNewBold.ttf"), { family: "CourierNewBold" });
 
 export default async function handler(req, res) {
   try {
-    // Check GITHUB_TOKEN
-    if (!process.env.GITHUB_TOKEN) {
-      console.warn("⚠️ GITHUB_TOKEN is NOT set in this serverless function!");
-    } else {
-      console.log("✅ GITHUB_TOKEN loaded successfully.");
-    }
-
     const width = 1000;
     const height = 450;
 
+    // Initialize GIF encoder
     const encoder = new GifEncoder(width, height);
     const stream = encoder.createReadStream();
 
     res.setHeader("Content-Type", "image/gif");
     res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate");
 
-    encoder.setDelay(500);
-    encoder.setRepeat(0);
+    encoder.setDelay(500); // 500ms between frames
+    encoder.setRepeat(0); // Loop forever
     encoder.start();
 
     for (let frameNum = 0; frameNum < 2; frameNum++) {
@@ -62,9 +60,9 @@ export default async function handler(req, res) {
       const centerX = width / 2;
       const centerY = height / 2;
 
-      // "JUSTIN"
+      // "JUSTIN" - Cyan/Blue neon
       ctx.save();
-      ctx.font = "bold 120px monospace"; // Use Vercel-supported font
+      ctx.font = "bold 120px 'CourierNewBold'";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(0, 255, 255, ${opacity1})`;
@@ -78,9 +76,9 @@ export default async function handler(req, res) {
       ctx.fillText("JUSTIN", centerX, centerY - 80);
       ctx.restore();
 
-      // "LUFT"
+      // "LUFT" - Magenta/Pink neon
       ctx.save();
-      ctx.font = "bold 120px monospace"; // Use Vercel-supported font
+      ctx.font = "bold 120px 'CourierNewBold'";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(255, 0, 255, ${opacity2})`;
@@ -94,6 +92,66 @@ export default async function handler(req, res) {
       ctx.fillText("LUFT", centerX, centerY + 80);
       ctx.restore();
 
+      // Decorative top line
+      const lineY1 = centerY - 150;
+      ctx.save();
+      const lineGrad1 = ctx.createLinearGradient(100, lineY1, width - 100, lineY1);
+      lineGrad1.addColorStop(0, "rgba(0, 255, 255, 0)");
+      lineGrad1.addColorStop(0.5, `rgba(0, 255, 255, ${opacity1})`);
+      lineGrad1.addColorStop(1, "rgba(0, 255, 255, 0)");
+      ctx.strokeStyle = lineGrad1;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = `rgba(0, 255, 255, ${opacity1})`;
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.moveTo(100, lineY1);
+      ctx.lineTo(width - 100, lineY1);
+      ctx.stroke();
+      ctx.restore();
+
+      // Decorative bottom line
+      const lineY2 = centerY + 150;
+      ctx.save();
+      const lineGrad2 = ctx.createLinearGradient(100, lineY2, width - 100, lineY2);
+      lineGrad2.addColorStop(0, "rgba(255, 0, 255, 0)");
+      lineGrad2.addColorStop(0.5, `rgba(255, 0, 255, ${opacity2})`);
+      lineGrad2.addColorStop(1, "rgba(255, 0, 255, 0)");
+      ctx.strokeStyle = lineGrad2;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = `rgba(255, 0, 255, ${opacity2})`;
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.moveTo(100, lineY2);
+      ctx.lineTo(width - 100, lineY2);
+      ctx.stroke();
+      ctx.restore();
+
+      // Corner decorations
+      function drawCorner(x, y, opacity, color) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(${color}, ${opacity * 0.6})`;
+        ctx.lineWidth = 2;
+        ctx.shadowColor = `rgba(${color}, ${opacity})`;
+        ctx.shadowBlur = 10;
+        const size = 30;
+        ctx.beginPath();
+        ctx.moveTo(x - size, y);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x, y - size);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x + size, y);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x, y + size);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      drawCorner(50, 50, opacity1, "0, 255, 255");
+      drawCorner(width - 50, 50, opacity2, "255, 0, 255");
+      drawCorner(50, height - 50, opacity2, "255, 0, 255");
+      drawCorner(width - 50, height - 50, opacity1, "0, 255, 255");
+
       const imageData = ctx.getImageData(0, 0, width, height);
       encoder.addFrame(imageData.data);
     }
@@ -105,4 +163,4 @@ export default async function handler(req, res) {
     console.error(err);
     res.status(500).send("Error generating neon visual.");
   }
-}
+};
