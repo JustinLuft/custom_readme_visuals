@@ -2,24 +2,28 @@ import { createCanvas, registerFont } from "canvas";
 import { GifEncoder } from "@skyra/gifenc";
 import 'dotenv/config';
 import path from "path";
+import fs from "fs";
 
-// Register a Vercel-compatible font
-registerFont(path.join(process.cwd(), "fonts", "CourierNewBold.ttf"), { family: "CourierNewBold" });
+// Ensure the font file exists
+const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
+console.log("Font exists?", fs.existsSync(fontPath), fontPath);
+
+// Register font
+registerFont(fontPath, { family: "CourierNewBold" });
 
 export default async function handler(req, res) {
   try {
     const width = 1000;
     const height = 450;
 
-    // Initialize GIF encoder
     const encoder = new GifEncoder(width, height);
     const stream = encoder.createReadStream();
 
     res.setHeader("Content-Type", "image/gif");
     res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate");
 
-    encoder.setDelay(500); // 500ms between frames
-    encoder.setRepeat(0); // Loop forever
+    encoder.setDelay(500);
+    encoder.setRepeat(0);
     encoder.start();
 
     for (let frameNum = 0; frameNum < 2; frameNum++) {
@@ -60,9 +64,9 @@ export default async function handler(req, res) {
       const centerX = width / 2;
       const centerY = height / 2;
 
-      // "JUSTIN" - Cyan/Blue neon
+      // JUSTIN
       ctx.save();
-      ctx.font = "bold 120px 'CourierNewBold'";
+      ctx.font = "bold 120px CourierNewBold"; // <— no quotes around the font name
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(0, 255, 255, ${opacity1})`;
@@ -76,9 +80,9 @@ export default async function handler(req, res) {
       ctx.fillText("JUSTIN", centerX, centerY - 80);
       ctx.restore();
 
-      // "LUFT" - Magenta/Pink neon
+      // LUFT
       ctx.save();
-      ctx.font = "bold 120px 'CourierNewBold'";
+      ctx.font = "bold 120px CourierNewBold"; // <— no quotes
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(255, 0, 255, ${opacity2})`;
@@ -92,7 +96,7 @@ export default async function handler(req, res) {
       ctx.fillText("LUFT", centerX, centerY + 80);
       ctx.restore();
 
-      // Decorative top line
+      // Top line
       const lineY1 = centerY - 150;
       ctx.save();
       const lineGrad1 = ctx.createLinearGradient(100, lineY1, width - 100, lineY1);
@@ -109,7 +113,7 @@ export default async function handler(req, res) {
       ctx.stroke();
       ctx.restore();
 
-      // Decorative bottom line
+      // Bottom line
       const lineY2 = centerY + 150;
       ctx.save();
       const lineGrad2 = ctx.createLinearGradient(100, lineY2, width - 100, lineY2);
@@ -126,7 +130,7 @@ export default async function handler(req, res) {
       ctx.stroke();
       ctx.restore();
 
-      // Corner decorations
+      // Corners
       function drawCorner(x, y, opacity, color) {
         ctx.save();
         ctx.strokeStyle = `rgba(${color}, ${opacity * 0.6})`;
@@ -163,4 +167,4 @@ export default async function handler(req, res) {
     console.error(err);
     res.status(500).send("Error generating neon visual.");
   }
-};
+}
