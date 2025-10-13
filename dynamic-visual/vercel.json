@@ -1,9 +1,12 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/visual.js", "use": "@vercel/node" }
+    { "src": "server.js", "use": "@vercel/node" },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" }
+    { "src": "/api/connect", "dest": "/api/connect.js" },
+    { "src": "/api/header", "dest": "/api/header.js" },
+    { "src": "/api/languages", "dest": "/api/languages.js" }
   ]
 }
