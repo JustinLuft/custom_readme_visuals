@@ -1,14 +1,10 @@
-import { createCanvas, registerFont } from "canvas";
+import { createCanvas } from "canvas";
 import { GifEncoder } from "@skyra/gifenc";
 import 'dotenv/config';
-import path from "path";
-
-// Register a font (make sure you have this TTF in your project)
-registerFont(path.resolve("./fonts/CourierNewBold.ttf"), { family: "Courier New" });
 
 export default async function handler(req, res) {
   try {
-    // ⚠️ Check for GITHUB_TOKEN
+    // Check GITHUB_TOKEN
     if (!process.env.GITHUB_TOKEN) {
       console.warn("⚠️ GITHUB_TOKEN is NOT set in this serverless function!");
     } else {
@@ -68,7 +64,7 @@ export default async function handler(req, res) {
 
       // "JUSTIN"
       ctx.save();
-      ctx.font = "bold 120px 'Courier New'";
+      ctx.font = "bold 120px monospace"; // Use Vercel-supported font
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(0, 255, 255, ${opacity1})`;
@@ -84,7 +80,7 @@ export default async function handler(req, res) {
 
       // "LUFT"
       ctx.save();
-      ctx.font = "bold 120px 'Courier New'";
+      ctx.font = "bold 120px monospace"; // Use Vercel-supported font
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(255, 0, 255, ${opacity2})`;
@@ -98,7 +94,6 @@ export default async function handler(req, res) {
       ctx.fillText("LUFT", centerX, centerY + 80);
       ctx.restore();
 
-      // Add other decorative lines/corners here if needed
       const imageData = ctx.getImageData(0, 0, width, height);
       encoder.addFrame(imageData.data);
     }
