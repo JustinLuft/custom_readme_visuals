@@ -1,7 +1,13 @@
-import { createCanvas, loadImage } from "canvas";
-import fetch from "node-fetch";
+import { createCanvas, registerFont } from "canvas";
 import { Octokit } from "octokit";
 import 'dotenv/config';
+import path from "path";
+import fs from "fs";
+
+// --- Register your font ---
+const fontPath = path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf");
+console.log("Font exists?", fs.existsSync(fontPath), fontPath);
+registerFont(fontPath, { family: "CourierNewBold" });
 
 export default async function handler(req, res) {
   const username = req.query.username || "JustinLuft";
@@ -11,7 +17,7 @@ export default async function handler(req, res) {
     // --- Fetch user data ---
     const { data: user } = await octokit.rest.users.getByUsername({ username });
 
-    // --- Fetch repos to compute top languages and total stars ---
+    // --- Fetch repos ---
     const repos = await octokit.paginate(octokit.rest.repos.listForUser, {
       username,
       per_page: 100,
@@ -20,7 +26,7 @@ export default async function handler(req, res) {
 
     const langTotals = {};
     let totalStars = 0;
-    
+
     for (const repo of repos) {
       totalStars += repo.stargazers_count;
       if (!repo.language) continue;
@@ -31,13 +37,12 @@ export default async function handler(req, res) {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 4); // Top 4 languages
 
-    // --- Canvas setup ---
-    const width = 1000,
-      height = 450;
+    // --- Canvas ---
+    const width = 1000, height = 450;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
 
-    // --- Enhanced Background ---
+    // Background gradient
     const gradient = ctx.createLinearGradient(0, 0, width, height);
     gradient.addColorStop(0, "#0a0a1a");
     gradient.addColorStop(0.3, "#1a0a2e");
@@ -46,7 +51,7 @@ export default async function handler(req, res) {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    // Animated-style grid with glow
+    // Grid
     ctx.strokeStyle = "rgba(0,255,255,0.08)";
     ctx.lineWidth = 1;
     for (let i = 0; i < width; i += 40) {
@@ -62,14 +67,14 @@ export default async function handler(req, res) {
       ctx.stroke();
     }
 
-    // --- Stats display (no header) ---
-    ctx.font = "28px 'Courier New'";
+    // --- Stats ---
+    ctx.font = "28px CourierNewBold"; // Use your font
     ctx.fillStyle = "#ffffff";
     ctx.fillText(`📦 ${user.public_repos} Repositories`, 80, 60);
-    
+
     ctx.fillStyle = "rgba(255,255,255,0.5)";
     ctx.fillText("│", 380, 60);
-    
+
     ctx.fillStyle = "#ffffff";
     ctx.fillText(`⭐ ${totalStars} Total Stars`, 420, 60);
 
@@ -88,19 +93,17 @@ export default async function handler(req, res) {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // --- Language bars with header ---
+    // --- Language bars ---
     const langHeaderY = 130;
-    
-    // Section header
     ctx.save();
     ctx.shadowColor = "#ff00ff";
     ctx.shadowBlur = 20;
     ctx.fillStyle = "#ff00ff";
-    ctx.font = "bold 28px 'Courier New'";
+    ctx.font = "bold 28px CourierNewBold"; // custom font
     ctx.fillText("MOST USED LANGUAGES", 80, langHeaderY);
     ctx.shadowBlur = 0;
     ctx.restore();
-    
+
     let barY = 180;
     const barX = 80;
     const maxBarWidth = 840;
@@ -113,11 +116,11 @@ export default async function handler(req, res) {
       const percentage = ((count / maxCount) * 100).toFixed(0);
       const barLen = (count / maxCount) * maxBarWidth;
 
-      // Background bar (darker)
+      // Background bar
       ctx.fillStyle = "rgba(255,255,255,0.05)";
       ctx.fillRect(barX, barY, maxBarWidth, barHeight);
 
-      // Foreground bar with gradient
+      // Foreground bar gradient
       const barGrad = ctx.createLinearGradient(barX, barY, barX + barLen, barY);
       barGrad.addColorStop(0, "#00ffff");
       barGrad.addColorStop(0.5, "#00d4ff");
@@ -130,19 +133,19 @@ export default async function handler(req, res) {
       ctx.fillRect(barX, barY, barLen, barHeight);
       ctx.restore();
 
-      // Border on the bar
+      // Bar border
       ctx.strokeStyle = "rgba(0,255,255,0.5)";
       ctx.lineWidth = 1;
       ctx.strokeRect(barX, barY, maxBarWidth, barHeight);
 
       // Language name
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 22px 'Courier New'";
+      ctx.font = "bold 22px CourierNewBold"; // custom font
       ctx.fillText(lang, barX, barY - 8);
 
-      // Percentage and count
+      // Percentage/count
       ctx.fillStyle = "rgba(255,255,255,0.7)";
-      ctx.font = "18px 'Courier New'";
+      ctx.font = "18px CourierNewBold"; // custom font
       ctx.textAlign = "right";
       ctx.fillText(`${count} repos (${percentage}%)`, barX + maxBarWidth, barY - 8);
       ctx.textAlign = "left";
@@ -150,10 +153,11 @@ export default async function handler(req, res) {
       barY += barSpacing;
     }
 
-    // --- Output image ---
+    // --- Output ---
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "s-maxage=3600, stale-while-revalidate");
     canvas.pngStream().pipe(res);
+
   } catch (err) {
     console.error(err);
     res.status(500).send("Error generating stats visual.");
