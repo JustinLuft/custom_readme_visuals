@@ -29,10 +29,20 @@ export default async function handler(req, res) {
     encoder.setRepeat(0);
     encoder.start();
 
+    const scale = 2 / 3; // 1/3 smaller
+
     for (let frameNum = 0; frameNum < 2; frameNum++) {
       const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
       const cycle = frameNum;
+
+      // Apply global scaling
+      ctx.scale(scale, scale);
+
+      const scaledWidth = width / scale;
+      const scaledHeight = height / scale;
+      const centerX = scaledWidth / 2;
+      const centerY = scaledHeight / 2;
 
       const opacity1 = cycle === 0 ? 1 : 0.3;
       const opacity2 = cycle === 1 ? 1 : 0.3;
@@ -40,36 +50,33 @@ export default async function handler(req, res) {
       const glowIntensity2 = cycle === 1 ? 40 : 10;
 
       // Background gradient
-      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      const gradient = ctx.createLinearGradient(0, 0, scaledWidth, scaledHeight);
       gradient.addColorStop(0, "#0a0a1a");
       gradient.addColorStop(0.3, "#1a0a2e");
       gradient.addColorStop(0.7, "#16213e");
       gradient.addColorStop(1, "#0f0f1e");
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
+      ctx.fillRect(0, 0, scaledWidth, scaledHeight);
 
       // Grid
       ctx.strokeStyle = "rgba(0,255,255,0.08)";
       ctx.lineWidth = 1;
-      for (let i = 0; i < width; i += 40) {
+      for (let i = 0; i < scaledWidth; i += 40) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
-        ctx.lineTo(i, height);
+        ctx.lineTo(i, scaledHeight);
         ctx.stroke();
       }
-      for (let i = 0; i < height; i += 40) {
+      for (let i = 0; i < scaledHeight; i += 40) {
         ctx.beginPath();
         ctx.moveTo(0, i);
-        ctx.lineTo(width, i);
+        ctx.lineTo(scaledWidth, i);
         ctx.stroke();
       }
-
-      const centerX = width / 2;
-      const centerY = height / 2;
 
       // JUSTIN
       ctx.save();
-      ctx.font = "bold 120px CourierNewBold"; // <— no quotes around the font name
+      ctx.font = "bold 120px CourierNewBold";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(0, 255, 255, ${opacity1})`;
@@ -85,7 +92,7 @@ export default async function handler(req, res) {
 
       // LUFT
       ctx.save();
-      ctx.font = "bold 120px CourierNewBold"; // <— no quotes
+      ctx.font = "bold 120px CourierNewBold";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.shadowColor = `rgba(255, 0, 255, ${opacity2})`;
@@ -102,7 +109,7 @@ export default async function handler(req, res) {
       // Top line
       const lineY1 = centerY - 150;
       ctx.save();
-      const lineGrad1 = ctx.createLinearGradient(100, lineY1, width - 100, lineY1);
+      const lineGrad1 = ctx.createLinearGradient(100, lineY1, scaledWidth - 100, lineY1);
       lineGrad1.addColorStop(0, "rgba(0, 255, 255, 0)");
       lineGrad1.addColorStop(0.5, `rgba(0, 255, 255, ${opacity1})`);
       lineGrad1.addColorStop(1, "rgba(0, 255, 255, 0)");
@@ -112,14 +119,14 @@ export default async function handler(req, res) {
       ctx.shadowBlur = 15;
       ctx.beginPath();
       ctx.moveTo(100, lineY1);
-      ctx.lineTo(width - 100, lineY1);
+      ctx.lineTo(scaledWidth - 100, lineY1);
       ctx.stroke();
       ctx.restore();
 
       // Bottom line
       const lineY2 = centerY + 150;
       ctx.save();
-      const lineGrad2 = ctx.createLinearGradient(100, lineY2, width - 100, lineY2);
+      const lineGrad2 = ctx.createLinearGradient(100, lineY2, scaledWidth - 100, lineY2);
       lineGrad2.addColorStop(0, "rgba(255, 0, 255, 0)");
       lineGrad2.addColorStop(0.5, `rgba(255, 0, 255, ${opacity2})`);
       lineGrad2.addColorStop(1, "rgba(255, 0, 255, 0)");
@@ -129,7 +136,7 @@ export default async function handler(req, res) {
       ctx.shadowBlur = 15;
       ctx.beginPath();
       ctx.moveTo(100, lineY2);
-      ctx.lineTo(width - 100, lineY2);
+      ctx.lineTo(scaledWidth - 100, lineY2);
       ctx.stroke();
       ctx.restore();
 
@@ -155,9 +162,9 @@ export default async function handler(req, res) {
       }
 
       drawCorner(50, 50, opacity1, "0, 255, 255");
-      drawCorner(width - 50, 50, opacity2, "255, 0, 255");
-      drawCorner(50, height - 50, opacity2, "255, 0, 255");
-      drawCorner(width - 50, height - 50, opacity1, "0, 255, 255");
+      drawCorner(scaledWidth - 50, 50, opacity2, "255, 0, 255");
+      drawCorner(50, scaledHeight - 50, opacity2, "255, 0, 255");
+      drawCorner(scaledWidth - 50, scaledHeight - 50, opacity1, "0, 255, 255");
 
       const imageData = ctx.getImageData(0, 0, width, height);
       encoder.addFrame(imageData.data);
