@@ -16,8 +16,8 @@ registerFont(
 
 export default async function handler(req, res) {
   try {
-    const width = 1000;
-    const height = 450;
+    const width = 900;
+    const height = 350;
 
     const encoder = new GifEncoder(width, height);
     const stream = encoder.createReadStream();
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     encoder.setRepeat(0);
     encoder.start();
 
-    const scale = 1 / 3; // 2/3 smaller
+    const scale = 2 / 3; // 2/3 smaller
 
     for (let frameNum = 0; frameNum < 2; frameNum++) {
       const canvas = createCanvas(width, height);
