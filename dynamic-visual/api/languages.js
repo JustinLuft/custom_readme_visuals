@@ -4,7 +4,7 @@ import 'dotenv/config';
 import path from "path";
 import fs from "fs";
 
-// --- Register your font ---
+// --- Register font like the working header ---
 const fontPath = path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf");
 console.log("Font exists?", fs.existsSync(fontPath), fontPath);
 registerFont(fontPath, { family: "CourierNewBold" });
@@ -24,20 +24,19 @@ export default async function handler(req, res) {
       sort: "updated",
     });
 
+    // --- Compute top languages and total stars ---
     const langTotals = {};
     let totalStars = 0;
-
     for (const repo of repos) {
       totalStars += repo.stargazers_count;
       if (!repo.language) continue;
       langTotals[repo.language] = (langTotals[repo.language] || 0) + 1;
     }
-
     const sortedLangs = Object.entries(langTotals)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 4); // Top 4 languages
+      .slice(0, 4); // top 4 languages
 
-    // --- Canvas ---
+    // --- Canvas setup ---
     const width = 1000, height = 450;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
@@ -51,7 +50,7 @@ export default async function handler(req, res) {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    // Grid
+    // Grid like header visual
     ctx.strokeStyle = "rgba(0,255,255,0.08)";
     ctx.lineWidth = 1;
     for (let i = 0; i < width; i += 40) {
@@ -68,7 +67,7 @@ export default async function handler(req, res) {
     }
 
     // --- Stats ---
-    ctx.font = "28px CourierNewBold"; // Use your font
+    ctx.font = "28px CourierNewBold";
     ctx.fillStyle = "#ffffff";
     ctx.fillText(`📦 ${user.public_repos} Repositories`, 80, 60);
 
@@ -93,13 +92,13 @@ export default async function handler(req, res) {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // --- Language bars ---
+    // --- Languages ---
     const langHeaderY = 130;
     ctx.save();
     ctx.shadowColor = "#ff00ff";
     ctx.shadowBlur = 20;
     ctx.fillStyle = "#ff00ff";
-    ctx.font = "bold 28px CourierNewBold"; // custom font
+    ctx.font = "bold 28px CourierNewBold";
     ctx.fillText("MOST USED LANGUAGES", 80, langHeaderY);
     ctx.shadowBlur = 0;
     ctx.restore();
@@ -120,7 +119,7 @@ export default async function handler(req, res) {
       ctx.fillStyle = "rgba(255,255,255,0.05)";
       ctx.fillRect(barX, barY, maxBarWidth, barHeight);
 
-      // Foreground bar gradient
+      // Foreground gradient bar
       const barGrad = ctx.createLinearGradient(barX, barY, barX + barLen, barY);
       barGrad.addColorStop(0, "#00ffff");
       barGrad.addColorStop(0.5, "#00d4ff");
@@ -140,12 +139,12 @@ export default async function handler(req, res) {
 
       // Language name
       ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 22px CourierNewBold"; // custom font
+      ctx.font = "bold 22px CourierNewBold";
       ctx.fillText(lang, barX, barY - 8);
 
       // Percentage/count
       ctx.fillStyle = "rgba(255,255,255,0.7)";
-      ctx.font = "18px CourierNewBold"; // custom font
+      ctx.font = "18px CourierNewBold";
       ctx.textAlign = "right";
       ctx.fillText(`${count} repos (${percentage}%)`, barX + maxBarWidth, barY - 8);
       ctx.textAlign = "left";
