@@ -1,0 +1,23 @@
+{
+  "name": "dynamic-visual",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@skyra/gifenc": "^1.0.1",
+    "canvas": "^3.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "gif-encoder-2": "^1.0.5",
+    "node-fetch": "^3.3.2",
+    "octokit": "^5.0.3"
+  }
+}
