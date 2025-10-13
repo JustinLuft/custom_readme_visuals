@@ -9,7 +9,10 @@ const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
 console.log("Font exists?", fs.existsSync(fontPath), fontPath);
 
 // Register font
-registerFont(fontPath, { family: "CourierNewBold" });
+registerFont(
+  path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf"),
+  { family: "CourierNewBold" }
+);
 
 export default async function handler(req, res) {
   try {
