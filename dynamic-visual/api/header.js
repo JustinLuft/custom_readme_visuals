@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     encoder.setRepeat(0);
     encoder.start();
 
-    const scale = 2 / 3; // 1/3 smaller
+    const scale = 1 / 3; // 2/3 smaller
 
     for (let frameNum = 0; frameNum < 2; frameNum++) {
       const canvas = createCanvas(width, height);
