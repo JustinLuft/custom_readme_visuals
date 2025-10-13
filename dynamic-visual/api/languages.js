@@ -45,15 +45,9 @@ export default async function handler(req, res) {
 
     // --- Canvas setup ---
     const width = 1000,
-      height = 450;
+      height = 850;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext("2d");
-
-    // Apply scaling
-    const scale = 2;
-    ctx.scale(scale, scale);
-    const scaledWidth = width / scale;
-    const scaledHeight = height / scale;
 
     // --- Enhanced Background ---
     const gradient = ctx.createLinearGradient(0, 0, width, height);
