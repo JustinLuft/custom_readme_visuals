@@ -1,5 +1,12 @@
-import { createCanvas } from "canvas";
+import { createCanvas, registerFont } from "canvas";
 import { GifEncoder } from "@skyra/gifenc";
+import path from "path";
+import fs from "fs";
+
+// Ensure the font file exists and register it
+const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
+console.log("Font exists?", fs.existsSync(fontPath), fontPath);
+registerFont(fontPath, { family: "CourierNewBold" });
 
 export default async function handler(req, res) {
   try {
@@ -73,7 +80,7 @@ export default async function handler(req, res) {
         const pulseIntensity = 15 + Math.sin(frameNum / 3) * 10;
         
         ctx.save();
-        ctx.font = "bold 16px 'Courier New', monospace";
+        ctx.font = "bold 16px CourierNewBold"; // <- Use registered font here
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.shadowColor = color;
@@ -86,7 +93,7 @@ export default async function handler(req, res) {
 
         // White overlay
         ctx.save();
-        ctx.font = "bold 16px 'Courier New', monospace";
+        ctx.font = "bold 16px CourierNewBold"; // <- Use registered font here too
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
