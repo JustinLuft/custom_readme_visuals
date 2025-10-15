@@ -6,11 +6,14 @@ import fs from "fs";
 // ----------------------
 // FONT SETUP
 // ----------------------
-const fontPath = path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf");
-if (!fs.existsSync(fontPath)) {
-  throw new Error("Font file not found at " + fontPath);
-}
-registerFont(fontPath, { family: "CourierNewBold" });
+const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
+console.log("Font exists?", fs.existsSync(fontPath), fontPath);
+
+// Register font
+registerFont(
+  path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf"),
+  { family: "CourierNewBold" }
+);
 
 // ----------------------
 // CYBERPUNK PINK GIF HANDLER
