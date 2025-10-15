@@ -3,8 +3,8 @@ import express from "express";
 // ----------------------
 // IMPORT API HANDLERS
 // ----------------------
-import connectHandler from "./api/connect.js";
-import personalWebsiteHandler from "./api/personal-website.js";
+import linkedinHandler from "./api/connect.js"; // LinkedIn visual
+import personalWebsiteHandler from "./api/personal-website.js"; // personalwebsite visual
 import headerHandler from "./api/header.js";
 import languagesHandler from "./api/languages.js";
 
@@ -39,10 +39,10 @@ const withLogging = (handler, name) => async (req, res) => {
 // ROUTES CONFIGURATION
 // ----------------------
 const routes = {
-  connect: connectHandler,
-  "personal-website": personalWebsiteHandler,
-  header: headerHandler,
-  languages: languagesHandler,
+  linkedin: linkedinHandler,       // LinkedIn visual
+  personalwebsite: personalWebsiteHandler, // Personal Website visual (no dash)
+  header: headerHandler,           // GitHub header visual
+  languages: languagesHandler,     // GitHub languages visual
   // Add new visuals here:
   // "new-visual-name": newHandler,
 };
