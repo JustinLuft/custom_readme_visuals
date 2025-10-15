@@ -32,28 +32,36 @@ export default async function handler(req, res) {
         // Transparent background
         ctx.clearRect(0, 0, scaledWidth, scaledHeight);
 
-        // Solid blue line
-        ctx.strokeStyle = "rgba(0, 255, 255, 1)";
+        // -------------------------
+        // Blue neon base line
+        // -------------------------
+        const baseGradient = ctx.createLinearGradient(0, 0, scaledWidth, 0);
+        baseGradient.addColorStop(0, "rgba(0, 255, 255, 0.6)");
+        baseGradient.addColorStop(0.5, "rgba(0, 180, 255, 1)");
+        baseGradient.addColorStop(1, "rgba(0, 255, 255, 0.6)");
+
+        ctx.strokeStyle = baseGradient;
         ctx.lineWidth = 4 * scale;
         ctx.beginPath();
         ctx.moveTo(0, scaledHeight / 2);
         ctx.lineTo(scaledWidth, scaledHeight / 2);
         ctx.stroke();
 
-        // Pink aura sweep (no shadow, only on top)
+        // -------------------------
+        // Pink sweeping aura
+        // -------------------------
         const sweepWidth = scaledWidth / 4;
         const sweepPosition = (frame / frames) * (scaledWidth + sweepWidth) - sweepWidth;
 
-        const gradient = ctx.createLinearGradient(sweepPosition, 0, sweepPosition + sweepWidth, 0);
-        gradient.addColorStop(0, "rgba(255,0,255,0)");
-        gradient.addColorStop(0.3, "rgba(255,0,255,0.6)");
-        gradient.addColorStop(0.5, "rgba(255,0,255,1)");
-        gradient.addColorStop(0.7, "rgba(255,0,255,0.6)");
-        gradient.addColorStop(1, "rgba(255,0,255,0)");
+        const pinkGradient = ctx.createLinearGradient(sweepPosition, 0, sweepPosition + sweepWidth, 0);
+        pinkGradient.addColorStop(0, "rgba(255,0,255,0)");
+        pinkGradient.addColorStop(0.2, "rgba(255,0,255,0.5)");
+        pinkGradient.addColorStop(0.5, "rgba(255,0,255,0.9)");
+        pinkGradient.addColorStop(0.8, "rgba(255,0,255,0.5)");
+        pinkGradient.addColorStop(1, "rgba(255,0,255,0)");
 
-        ctx.strokeStyle = gradient;
+        ctx.strokeStyle = pinkGradient;
         ctx.lineWidth = 4 * scale;
-
         ctx.beginPath();
         ctx.moveTo(0, scaledHeight / 2);
         ctx.lineTo(scaledWidth, scaledHeight / 2);
