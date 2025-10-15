@@ -7,11 +7,9 @@ import fs from "fs";
 // FONT SETUP
 // ----------------------
 const fontPath = path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf");
-
 if (!fs.existsSync(fontPath)) {
   throw new Error("Font file not found at " + fontPath);
 }
-
 registerFont(fontPath, { family: "CourierNewBold" });
 
 // ----------------------
@@ -19,8 +17,13 @@ registerFont(fontPath, { family: "CourierNewBold" });
 // ----------------------
 export default async function handler(req, res) {
   try {
-    const width = 180;
-    const height = 50;
+    // Scale up canvas to prevent serverless small-canvas issues
+    const baseWidth = 180;
+    const baseHeight = 50;
+    const scale = 4; // scales up to 720x200
+    const width = baseWidth * scale;
+    const height = baseHeight * scale;
+
     const text = "LINKEDIN";
     const color = "#00ffff";
     const colorRGB = "0, 255, 255";
@@ -52,8 +55,8 @@ export default async function handler(req, res) {
 
         // Grid
         ctx.strokeStyle = `rgba(${colorRGB}, 0.08)`;
-        ctx.lineWidth = 0.5;
-        for (let i = 0; i < height; i += 10) {
+        ctx.lineWidth = 0.5 * scale;
+        for (let i = 0; i < height; i += 10 * scale) {
           ctx.beginPath();
           ctx.moveTo(0, i);
           ctx.lineTo(width, i);
@@ -63,46 +66,46 @@ export default async function handler(req, res) {
         // Border with glow
         ctx.save();
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 * scale;
         ctx.shadowColor = color;
-        ctx.shadowBlur = 10;
-        ctx.strokeRect(2, 2, width - 4, height - 4);
+        ctx.shadowBlur = 10 * scale;
+        ctx.strokeRect(2 * scale, 2 * scale, width - 4 * scale, height - 4 * scale);
         ctx.restore();
 
         // Corner cut
         ctx.fillStyle = "#0a0a1a";
         ctx.beginPath();
-        ctx.moveTo(width - 12, height - 2);
-        ctx.lineTo(width - 2, height - 2);
-        ctx.lineTo(width - 2, height - 12);
+        ctx.moveTo(width - 12 * scale, height - 2 * scale);
+        ctx.lineTo(width - 2 * scale, height - 2 * scale);
+        ctx.lineTo(width - 2 * scale, height - 12 * scale);
         ctx.closePath();
         ctx.fill();
 
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 * scale;
         ctx.beginPath();
-        ctx.moveTo(width - 12, height - 2);
-        ctx.lineTo(width - 2, height - 12);
+        ctx.moveTo(width - 12 * scale, height - 2 * scale);
+        ctx.lineTo(width - 2 * scale, height - 12 * scale);
         ctx.stroke();
 
-        // Pulsing text with registered font
+        // Pulsing text
         const pulseIntensity = 15 + Math.sin(frameNum / 3) * 10;
 
         ctx.save();
-        ctx.font = "bold 16px CourierNewBold"; // <- Registered font
+        ctx.font = `${16 * scale}px CourierNewBold`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.shadowColor = color;
-        ctx.shadowBlur = pulseIntensity;
+        ctx.shadowBlur = pulseIntensity * scale;
         ctx.fillStyle = color;
         ctx.fillText(text, width / 2, height / 2);
-        ctx.shadowBlur = pulseIntensity + 10;
+        ctx.shadowBlur = (pulseIntensity + 10) * scale;
         ctx.fillText(text, width / 2, height / 2);
         ctx.restore();
 
         // White overlay
         ctx.save();
-        ctx.font = "bold 16px CourierNewBold"; // <- Registered font
+        ctx.font = `${16 * scale}px CourierNewBold`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
@@ -110,12 +113,12 @@ export default async function handler(req, res) {
         ctx.restore();
 
         // Scanline
-        const scanY = (frameNum / 20) * (height + 4) - 2;
+        const scanY = (frameNum / 20) * (height + 4 * scale) - 2 * scale;
         ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-        ctx.fillRect(0, scanY, width, 2);
+        ctx.fillRect(0, scanY, width, 2 * scale);
 
-        const imageData = ctx.getImageData(0, 0, width, height);
-        encoder.addFrame(imageData.data);
+        // Add frame via canvas context (more stable than raw data)
+        encoder.addFrame(ctx);
       }
 
       encoder.finish();
