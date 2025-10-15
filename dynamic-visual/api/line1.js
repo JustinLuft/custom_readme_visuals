@@ -32,7 +32,7 @@ export default async function handler(req, res) {
         // Transparent background
         ctx.clearRect(0, 0, scaledWidth, scaledHeight);
 
-        // Draw solid blue line
+        // Solid blue line
         ctx.strokeStyle = "rgba(0, 255, 255, 1)";
         ctx.lineWidth = 4 * scale;
         ctx.beginPath();
@@ -40,20 +40,19 @@ export default async function handler(req, res) {
         ctx.lineTo(scaledWidth, scaledHeight / 2);
         ctx.stroke();
 
-        // Pink sweeping aura
-        const sweepWidth = scaledWidth / 4; // width of pink aura
+        // Pink aura sweep (no shadow, only on top)
+        const sweepWidth = scaledWidth / 4;
         const sweepPosition = (frame / frames) * (scaledWidth + sweepWidth) - sweepWidth;
 
         const gradient = ctx.createLinearGradient(sweepPosition, 0, sweepPosition + sweepWidth, 0);
-        gradient.addColorStop(0, "rgba(255, 0, 255, 0)");
-        gradient.addColorStop(0.3, "rgba(255, 0, 255, 0.6)");
-        gradient.addColorStop(0.5, "rgba(255, 0, 255, 1)");
-        gradient.addColorStop(0.7, "rgba(255, 0, 255, 0.6)");
-        gradient.addColorStop(1, "rgba(255, 0, 255, 0)");
+        gradient.addColorStop(0, "rgba(255,0,255,0)");
+        gradient.addColorStop(0.3, "rgba(255,0,255,0.6)");
+        gradient.addColorStop(0.5, "rgba(255,0,255,1)");
+        gradient.addColorStop(0.7, "rgba(255,0,255,0.6)");
+        gradient.addColorStop(1, "rgba(255,0,255,0)");
 
         ctx.strokeStyle = gradient;
-        ctx.shadowColor = "rgba(255, 0, 255, 0.5)";
-        ctx.shadowBlur = 8 * scale;
+        ctx.lineWidth = 4 * scale;
 
         ctx.beginPath();
         ctx.moveTo(0, scaledHeight / 2);
