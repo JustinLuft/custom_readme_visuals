@@ -4,7 +4,7 @@ import { GifEncoder } from "@skyra/gifenc";
 export default async function handler(req, res) {
   try {
     const width = 180;
-    const height = 50;
+    const height = 10; // thin line
     const scale = 4;
     const scaledWidth = width * scale;
     const scaledHeight = height * scale;
@@ -27,22 +27,19 @@ export default async function handler(req, res) {
         const canvas = createCanvas(scaledWidth, scaledHeight);
         const ctx = canvas.getContext("2d");
 
-        // Background gradient
-        const bgGrad = ctx.createLinearGradient(0, 0, scaledWidth, scaledHeight);
-        bgGrad.addColorStop(0, "#0a0a1a");
-        bgGrad.addColorStop(1, "#00102e");
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, scaledWidth, scaledHeight);
+        // Transparent background
+        ctx.clearRect(0, 0, scaledWidth, scaledHeight);
 
         // Pulsing blue line
         const pulse = 0.6 + 0.4 * Math.sin(frame / 3); // opacity 0.2-1
         ctx.strokeStyle = `rgba(0, 255, 255, ${pulse})`;
         ctx.lineWidth = 4 * scale;
-        ctx.shadowColor = "rgba(0, 255, 255, 0.6)";
+        ctx.shadowColor = `rgba(0, 255, 255, 0.6)`;
         ctx.shadowBlur = 10 * scale;
+
         ctx.beginPath();
-        ctx.moveTo(10 * scale, scaledHeight / 2);
-        ctx.lineTo(scaledWidth - 10 * scale, scaledHeight / 2);
+        ctx.moveTo(0, scaledHeight / 2);
+        ctx.lineTo(scaledWidth, scaledHeight / 2);
         ctx.stroke();
 
         encoder.addFrame(ctx);
