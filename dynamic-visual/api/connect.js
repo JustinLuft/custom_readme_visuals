@@ -3,28 +3,41 @@ import { GifEncoder } from "@skyra/gifenc";
 import path from "path";
 import fs from "fs";
 
-// Ensure the font file exists and register it
-const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
-console.log("Font exists?", fs.existsSync(fontPath), fontPath);
+// ----------------------
+// FONT SETUP
+// ----------------------
+
+// Adjust path to match your project structure
+const fontPath = path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf");
+
+// Throw an error immediately if the font is missing
+if (!fs.existsSync(fontPath)) {
+  throw new Error("Font file not found at " + fontPath);
+}
+
+// Register the font once at the top level
 registerFont(fontPath, { family: "CourierNewBold" });
 
+// ----------------------
+// GIF HANDLER
+// ----------------------
 export default async function handler(req, res) {
   try {
     const width = 180;
     const height = 50;
-    const text = 'LINKEDIN';
-    const color = '#00ffff';
-    const colorRGB = '0, 255, 255';
+    const text = "LINKEDIN";
+    const color = "#00ffff";
+    const colorRGB = "0, 255, 255";
 
     const encoder = new GifEncoder(width, height);
     const chunks = [];
     const stream = encoder.createReadStream();
-    
-    stream.on('data', (chunk) => chunks.push(chunk));
+
+    stream.on("data", (chunk) => chunks.push(chunk));
 
     await new Promise((resolve, reject) => {
-      stream.on('end', resolve);
-      stream.on('error', reject);
+      stream.on("end", resolve);
+      stream.on("error", reject);
 
       encoder.setDelay(100);
       encoder.setRepeat(0);
@@ -34,7 +47,7 @@ export default async function handler(req, res) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
-        // Background
+        // Background gradient
         const bgGrad = ctx.createLinearGradient(0, 0, width, height);
         bgGrad.addColorStop(0, "#0a0a1a");
         bgGrad.addColorStop(1, "#1a0a2e");
@@ -51,7 +64,7 @@ export default async function handler(req, res) {
           ctx.stroke();
         }
 
-        // Border
+        // Border with glow
         ctx.save();
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
@@ -68,7 +81,7 @@ export default async function handler(req, res) {
         ctx.lineTo(width - 2, height - 12);
         ctx.closePath();
         ctx.fill();
-        
+
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -76,11 +89,11 @@ export default async function handler(req, res) {
         ctx.lineTo(width - 2, height - 12);
         ctx.stroke();
 
-        // Pulsing text
+        // Pulsing text with registered font
         const pulseIntensity = 15 + Math.sin(frameNum / 3) * 10;
-        
+
         ctx.save();
-        ctx.font = "bold 16px CourierNewBold"; // <- Use registered font here
+        ctx.font = "bold 16px CourierNewBold"; // <- Registered font
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.shadowColor = color;
@@ -93,7 +106,7 @@ export default async function handler(req, res) {
 
         // White overlay
         ctx.save();
-        ctx.font = "bold 16px CourierNewBold"; // <- Use registered font here too
+        ctx.font = "bold 16px CourierNewBold"; // <- Registered font
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
