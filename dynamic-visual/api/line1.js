@@ -32,22 +32,27 @@ export default async function handler(req, res) {
         // Transparent background
         ctx.clearRect(0, 0, scaledWidth, scaledHeight);
 
-        // Animate gradient position
-        const offset = (frame / frames) * scaledWidth;
+        // Draw solid blue line
+        ctx.strokeStyle = "rgba(0, 255, 255, 1)";
+        ctx.lineWidth = 4 * scale;
+        ctx.beginPath();
+        ctx.moveTo(0, scaledHeight / 2);
+        ctx.lineTo(scaledWidth, scaledHeight / 2);
+        ctx.stroke();
 
-        const gradient = ctx.createLinearGradient(
-          -scaledWidth + offset, 0,
-          offset, 0
-        );
-        gradient.addColorStop(0, "rgba(0, 255, 255, 0)");  // start transparent
-        gradient.addColorStop(0.2, "rgba(0, 255, 255, 0.8)"); // blue glow
-        gradient.addColorStop(0.5, "rgba(255, 0, 255, 1)"); // pink midline
-        gradient.addColorStop(0.8, "rgba(0, 255, 255, 0.8)"); // blue glow
-        gradient.addColorStop(1, "rgba(0, 255, 255, 0)"); // fade out
+        // Pink sweeping aura
+        const sweepWidth = scaledWidth / 4; // width of pink aura
+        const sweepPosition = (frame / frames) * (scaledWidth + sweepWidth) - sweepWidth;
+
+        const gradient = ctx.createLinearGradient(sweepPosition, 0, sweepPosition + sweepWidth, 0);
+        gradient.addColorStop(0, "rgba(255, 0, 255, 0)");
+        gradient.addColorStop(0.3, "rgba(255, 0, 255, 0.6)");
+        gradient.addColorStop(0.5, "rgba(255, 0, 255, 1)");
+        gradient.addColorStop(0.7, "rgba(255, 0, 255, 0.6)");
+        gradient.addColorStop(1, "rgba(255, 0, 255, 0)");
 
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 4 * scale;
-        ctx.shadowColor = "rgba(255,0,255,0.5)";
+        ctx.shadowColor = "rgba(255, 0, 255, 0.5)";
         ctx.shadowBlur = 8 * scale;
 
         ctx.beginPath();
