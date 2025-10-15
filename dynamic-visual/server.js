@@ -7,6 +7,7 @@ import linkedinHandler from "./api/connect.js"; // LinkedIn visual
 import personalWebsiteHandler from "./api/personal-website.js"; // personalwebsite visual
 import headerHandler from "./api/header.js";
 import languagesHandler from "./api/languages.js";
+import line1Handler from "./api/line1.js"; //blue line
 
 const app = express();
 
@@ -43,6 +44,7 @@ const routes = {
   personalwebsite: personalWebsiteHandler, // Personal Website visual (no dash)
   header: headerHandler,           // GitHub header visual
   languages: languagesHandler,     // GitHub languages visual
+  line1: line1Handler,
   // Add new visuals here:
   // "new-visual-name": newHandler,
 };
