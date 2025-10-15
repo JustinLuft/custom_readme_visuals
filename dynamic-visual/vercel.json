@@ -5,7 +5,8 @@
     { "src": "api/**/*.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/connect", "dest": "/api/connect.js" },
+    { "src": "/api/linkedin", "dest": "/api/linkedin.js" },
+    { "src": "/api/personalwebsite", "dest": "/api/personalwebsite.js" },
     { "src": "/api/header", "dest": "/api/header.js" },
     { "src": "/api/languages", "dest": "/api/languages.js" }
   ]
