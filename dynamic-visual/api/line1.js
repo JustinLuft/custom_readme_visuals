@@ -23,19 +23,32 @@ export default async function handler(req, res) {
       encoder.setRepeat(0);
       encoder.start();
 
-      for (let frame = 0; frame < 20; frame++) {
+      const frames = 20;
+
+      for (let frame = 0; frame < frames; frame++) {
         const canvas = createCanvas(scaledWidth, scaledHeight);
         const ctx = canvas.getContext("2d");
 
         // Transparent background
         ctx.clearRect(0, 0, scaledWidth, scaledHeight);
 
-        // Pulsing blue line
-        const pulse = 0.6 + 0.4 * Math.sin(frame / 3); // opacity 0.2-1
-        ctx.strokeStyle = `rgba(0, 255, 255, ${pulse})`;
+        // Animate gradient position
+        const offset = (frame / frames) * scaledWidth;
+
+        const gradient = ctx.createLinearGradient(
+          -scaledWidth + offset, 0,
+          offset, 0
+        );
+        gradient.addColorStop(0, "rgba(0, 255, 255, 0)");  // start transparent
+        gradient.addColorStop(0.2, "rgba(0, 255, 255, 0.8)"); // blue glow
+        gradient.addColorStop(0.5, "rgba(255, 0, 255, 1)"); // pink midline
+        gradient.addColorStop(0.8, "rgba(0, 255, 255, 0.8)"); // blue glow
+        gradient.addColorStop(1, "rgba(0, 255, 255, 0)"); // fade out
+
+        ctx.strokeStyle = gradient;
         ctx.lineWidth = 4 * scale;
-        ctx.shadowColor = `rgba(0, 255, 255, 0.6)`;
-        ctx.shadowBlur = 10 * scale;
+        ctx.shadowColor = "rgba(255,0,255,0.5)";
+        ctx.shadowBlur = 8 * scale;
 
         ctx.beginPath();
         ctx.moveTo(0, scaledHeight / 2);
