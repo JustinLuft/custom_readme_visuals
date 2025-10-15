@@ -1,13 +1,18 @@
 import express from "express";
 
-// Import your API route handlers
+// ----------------------
+// IMPORT API HANDLERS
+// ----------------------
 import connectHandler from "./api/connect.js";
+import personalWebsiteHandler from "./api/personal-website.js";
 import headerHandler from "./api/header.js";
 import languagesHandler from "./api/languages.js";
 
 const app = express();
 
-// Middleware to check if GitHub token is loaded
+// ----------------------
+// GITHUB TOKEN CHECK
+// ----------------------
 app.use((req, res, next) => {
   if (!process.env.GITHUB_TOKEN) {
     console.warn("⚠️ GITHUB_TOKEN is not set!");
@@ -17,7 +22,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Wrapper to log API requests and catch errors
+// ----------------------
+// HELPER: Wrap handler with logging & error handling
+// ----------------------
 const withLogging = (handler, name) => async (req, res) => {
   console.log(`➡️ Request to /api/${name}`);
   try {
@@ -28,16 +35,31 @@ const withLogging = (handler, name) => async (req, res) => {
   }
 };
 
-// Routes for your visuals
-app.get("/api/connect", withLogging(connectHandler, "connect"));
-app.get("/api/header", withLogging(headerHandler, "header"));
-app.get("/api/languages", withLogging(languagesHandler, "languages"));
+// ----------------------
+// ROUTES CONFIGURATION
+// ----------------------
+const routes = {
+  connect: connectHandler,
+  "personal-website": personalWebsiteHandler,
+  header: headerHandler,
+  languages: languagesHandler,
+  // Add new visuals here:
+  // "new-visual-name": newHandler,
+};
 
+// Automatically register all routes
+for (const [routeName, handler] of Object.entries(routes)) {
+  app.get(`/api/${routeName}`, withLogging(handler, routeName));
+}
+
+// ----------------------
+// START SERVER
+// ----------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}/`);
   console.log("Available routes:");
-  console.log("  /api/connect");
-  console.log("  /api/header");
-  console.log("  /api/languages");
+  for (const routeName of Object.keys(routes)) {
+    console.log(`  /api/${routeName}`);
+  }
 });
