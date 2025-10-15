@@ -1,148 +1,144 @@
-import { createCanvas } from "canvas";
-import 'dotenv/config';
-
-export default async function handler(req, res) {
-  try {
-    // Canvas setup
-    const width = 800;
-    const height = 200;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext("2d");
-
-    // Enhanced Background
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, "#0a0a1a");
-    gradient.addColorStop(0.3, "#1a0a2e");
-    gradient.addColorStop(0.7, "#16213e");
-    gradient.addColorStop(1, "#0f0f1e");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-
-    // Grid background
-    ctx.strokeStyle = "rgba(0,255,255,0.08)";
-    ctx.lineWidth = 1;
-    for (let i = 0; i < width; i += 40) {
-      ctx.beginPath();
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i, height);
-      ctx.stroke();
-    }
-    for (let i = 0; i < height; i += 40) {
-      ctx.beginPath();
-      ctx.moveTo(0, i);
-      ctx.lineTo(width, i);
-      ctx.stroke();
+(function() {
+  // Styles (Cyberpunk)
+  const styles = `
+    .cyberpunk-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #00ff00;
+      border: 2px solid #00ff00;
+      border-radius: 5px;
+      box-shadow: 0 0 10px #00ff00, 0 0 20px #008000;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease-in-out;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      display: inline-block; /* Ensure it behaves like an inline element */
+      font-family: 'Courier New', monospace;
     }
 
-    // Draw Website Button (Left - Cyan)
-    const button1X = 100;
-    const button1Y = 100;
-    const buttonWidth = 280;
-    const buttonHeight = 70;
+    .cyberpunk-button:hover {
+      color: #000;
+      background-color: #00ff00;
+      box-shadow: 0 0 5px #00ff00, 0 0 25px #00ff00, 0 0 50px #00ff00;
+      transform: translateY(-3px);
+    }
 
-    // Button background with glow
-    ctx.save();
-    ctx.strokeStyle = "#00ffff";
-    ctx.lineWidth = 3;
-    ctx.shadowColor = "#00ffff";
-    ctx.shadowBlur = 20;
-    ctx.strokeRect(button1X, button1Y - buttonHeight/2, buttonWidth, buttonHeight);
-    
-    // Inner glow
-    ctx.fillStyle = "rgba(0, 255, 255, 0.05)";
-    ctx.fillRect(button1X, button1Y - buttonHeight/2, buttonWidth, buttonHeight);
-    ctx.restore();
+    .cyberpunk-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #0f0, #0ff, #f0f, #ff0, #0f0);
+      z-index: -1;
+      background-size: 400%;
+      border-radius: 5px;
+      opacity: 0;
+      transition: all 0.5s ease-in-out;
+    }
 
-    // Corner decorations for button 1
-    const cornerSize = 15;
-    ctx.save();
-    ctx.strokeStyle = "#00ffff";
-    ctx.lineWidth = 2;
-    ctx.shadowColor = "#00ffff";
-    ctx.shadowBlur = 10;
-    
-    // Top-left corner
-    ctx.beginPath();
-    ctx.moveTo(button1X - 8, button1Y - buttonHeight/2 - 8 + cornerSize);
-    ctx.lineTo(button1X - 8, button1Y - buttonHeight/2 - 8);
-    ctx.lineTo(button1X - 8 + cornerSize, button1Y - buttonHeight/2 - 8);
-    ctx.stroke();
-    
-    // Bottom-right corner
-    ctx.beginPath();
-    ctx.moveTo(button1X + buttonWidth + 8 - cornerSize, button1Y + buttonHeight/2 + 8);
-    ctx.lineTo(button1X + buttonWidth + 8, button1Y + buttonHeight/2 + 8);
-    ctx.lineTo(button1X + buttonWidth + 8, button1Y + buttonHeight/2 + 8 - cornerSize);
-    ctx.stroke();
-    ctx.restore();
+    .cyberpunk-button:hover::before {
+      opacity: 1;
+      animation: glitch 5s linear infinite;
+    }
 
-    // Website button text
-    ctx.save();
-    ctx.font = "bold 24px 'Courier New'";
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "#00ffff";
-    ctx.shadowBlur = 15;
-    ctx.fillText("🌐 VISIT WEBSITE", button1X + buttonWidth/2, button1Y);
-    ctx.restore();
+    @keyframes glitch {
+      0% {
+        transform: translate(0);
+      }
+      20% {
+        transform: translate(-2px, 2px);
+      }
+      40% {
+        transform: translate(-2px, -2px);
+      }
+      60% {
+        transform: translate(2px, 2px);
+      }
+      80% {
+        transform: translate(2px, -2px);
+      }
+      100% {
+        transform: translate(0);
+      }
+    }
+  `;
 
-    // Draw LinkedIn Button (Right - Magenta)
-    const button2X = 480;
-    const button2Y = 100;
+  // Inject Styles
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
 
-    // Button background with glow
-    ctx.save();
-    ctx.strokeStyle = "#ff00ff";
-    ctx.lineWidth = 3;
-    ctx.shadowColor = "#ff00ff";
-    ctx.shadowBlur = 20;
-    ctx.strokeRect(button2X, button2Y - buttonHeight/2, buttonWidth, buttonHeight);
-    
-    // Inner glow
-    ctx.fillStyle = "rgba(255, 0, 255, 0.05)";
-    ctx.fillRect(button2X, button2Y - buttonHeight/2, buttonWidth, buttonHeight);
-    ctx.restore();
+  // Button Data
+  const buttons = [
+    {
+      href: "http://www.linkedin.com/in/justinnl",
+      text: "LinkedIn",
+      target: "_blank"
+    },
+    {
+      href: "https://portfolio-web-mu-ten.vercel.app/",
+      text: "Website",
+      target: "_blank"
+    }
+  ];
 
-    // Corner decorations for button 2
-    ctx.save();
-    ctx.strokeStyle = "#ff00ff";
-    ctx.lineWidth = 2;
-    ctx.shadowColor = "#ff00ff";
-    ctx.shadowBlur = 10;
-    
-    // Top-left corner
-    ctx.beginPath();
-    ctx.moveTo(button2X - 8, button2Y - buttonHeight/2 - 8 + cornerSize);
-    ctx.lineTo(button2X - 8, button2Y - buttonHeight/2 - 8);
-    ctx.lineTo(button2X - 8 + cornerSize, button2Y - buttonHeight/2 - 8);
-    ctx.stroke();
-    
-    // Bottom-right corner
-    ctx.beginPath();
-    ctx.moveTo(button2X + buttonWidth + 8 - cornerSize, button2Y + buttonHeight/2 + 8);
-    ctx.lineTo(button2X + buttonWidth + 8, button2Y + buttonHeight/2 + 8);
-    ctx.lineTo(button2X + buttonWidth + 8, button2Y + buttonHeight/2 + 8 - cornerSize);
-    ctx.stroke();
-    ctx.restore();
+  // Glitch Text Function
+  function glitchText(element) {
+    const text = element.innerText;
+    let glitching = false;
 
-    // LinkedIn button text
-    ctx.save();
-    ctx.font = "bold 24px 'Courier New'";
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "#ff00ff";
-    ctx.shadowBlur = 15;
-    ctx.fillText("💼 LINKEDIN", button2X + buttonWidth/2, button2Y);
-    ctx.restore();
+    element.addEventListener('mouseover', () => {
+      if (glitching) return;
 
-    // Output image
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate");
-    canvas.pngStream().pipe(res);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error generating connect buttons.");
+      glitching = true;
+      let glitchInterval = setInterval(() => {
+        let newText = '';
+        for (let i = 0; i < text.length; i++) {
+          const offset = Math.random() < 0.2 ? Math.floor(Math.random() * 6) - 3 : 0;
+          newText += `<span style="position: relative; top: ${offset}px; left: ${offset}px;">${text[i]}</span>`;
+        }
+        element.innerHTML = newText;
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(glitchInterval);
+        element.innerHTML = text;
+        glitching = false;
+      }, 1000);
+    });
   }
-}
+
+  // Create and Append Buttons
+  function createButtons() {
+    const container = document.createElement('div'); // Create a container for the buttons
+    container.style.display = 'flex'; // Use flexbox for horizontal layout
+    container.style.gap = '20px'; // Add some space between the buttons
+    container.style.justifyContent = 'center'; // Center the buttons horizontally
+
+    buttons.forEach(buttonData => {
+      const button = document.createElement('a');
+      button.href = buttonData.href;
+      button.text = buttonData.text;
+      button.className = "cyberpunk-button";
+      button.target = buttonData.target;
+
+      glitchText(button); // Apply glitch effect
+
+      container.appendChild(button); // Append to the container
+    });
+
+    // Append the container to the body (or any desired element)
+    document.body.appendChild(container);
+  }
+
+  // Run
+  createButtons();
+})();
