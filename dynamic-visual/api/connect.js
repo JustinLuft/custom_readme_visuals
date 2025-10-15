@@ -6,16 +6,12 @@ import fs from "fs";
 // ----------------------
 // FONT SETUP
 // ----------------------
-
-// Adjust path to match your project structure
 const fontPath = path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf");
 
-// Throw an error immediately if the font is missing
 if (!fs.existsSync(fontPath)) {
   throw new Error("Font file not found at " + fontPath);
 }
 
-// Register the font once at the top level
 registerFont(fontPath, { family: "CourierNewBold" });
 
 // ----------------------
