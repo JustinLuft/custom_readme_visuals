@@ -1,24 +1,28 @@
 import { createCanvas, registerFont } from "canvas";
 import { GifEncoder } from "@skyra/gifenc";
-import 'dotenv/config';
 import path from "path";
 
-// Register font - SAME as header implementation
-registerFont(
-  path.join(process.cwd(), "fonts", "CourierNewBold.ttf"),
-  { family: "CourierNewBold" }
-);
+// Register font
+try {
+  registerFont(
+    path.join(process.cwd(), "fonts", "CourierNewBold.ttf"),
+    { family: "CourierNewBold" }
+  );
+} catch (err) {
+  console.error("Font registration failed:", err);
+}
 
 export default async function handler(req, res) {
   try {
     const width = 180;
     const height = 50;
-    const text = 'LINKEDIN';
-    const color = '#00ffff';
-    const colorRGB = '0, 255, 255';
+    const text = "LINKEDIN";
+    const color = "#00ffff";
+    const colorRGB = "0, 255, 255";
 
     const encoder = new GifEncoder(width, height);
     const stream = encoder.createReadStream();
+    stream.pipe(res);
 
     res.setHeader("Content-Type", "image/gif");
     res.setHeader("Cache-Control", "s-maxage=86400, stale-while-revalidate");
@@ -65,7 +69,7 @@ export default async function handler(req, res) {
       ctx.lineTo(width - 2, height - 12);
       ctx.closePath();
       ctx.fill();
-      
+
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -73,9 +77,8 @@ export default async function handler(req, res) {
       ctx.lineTo(width - 2, height - 12);
       ctx.stroke();
 
-      // Pulsing text - SAME font usage as header
+      // Pulsing text
       const pulseIntensity = 15 + Math.sin(frameNum / 3) * 10;
-      
       ctx.save();
       ctx.font = "bold 16px CourierNewBold";
       ctx.textAlign = "center";
@@ -96,13 +99,11 @@ export default async function handler(req, res) {
       ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
       ctx.fillRect(0, scanY, width, 2);
 
-      const imageData = ctx.getImageData(0, 0, width, height);
-      encoder.addFrame(imageData.data);
+      // Add frame
+      encoder.addFrame(canvas.toBuffer("raw"));
     }
 
     encoder.finish();
-    stream.pipe(res);
-
   } catch (err) {
     console.error(err);
     res.status(500).send("Error generating LinkedIn badge.");
