@@ -1,144 +1,74 @@
-(function() {
-  // Styles (Cyberpunk)
-  const styles = `
-    .cyberpunk-button {
-      padding: 10px 20px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #00ff00;
-      border: 2px solid #00ff00;
-      border-radius: 5px;
-      box-shadow: 0 0 10px #00ff00, 0 0 20px #008000;
-      text-decoration: none;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all 0.3s ease-in-out;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      display: inline-block; /* Ensure it behaves like an inline element */
-      font-family: 'Courier New', monospace;
-    }
+import { createCanvas, registerFont } from "canvas";
+import { GifEncoder } from "@skyra/gifenc";
+import 'dotenv/config';
+import path from "path";
+import fs from "fs";
 
-    .cyberpunk-button:hover {
-      color: #000;
-      background-color: #00ff00;
-      box-shadow: 0 0 5px #00ff00, 0 0 25px #00ff00, 0 0 50px #00ff00;
-      transform: translateY(-3px);
-    }
+// Ensure the font file exists
+const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
+console.log("Font exists?", fs.existsSync(fontPath), fontPath);
 
-    .cyberpunk-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, #0f0, #0ff, #f0f, #ff0, #0f0);
-      z-index: -1;
-      background-size: 400%;
-      border-radius: 5px;
-      opacity: 0;
-      transition: all 0.5s ease-in-out;
-    }
+// Register font
+registerFont(
+  path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf"),
+  { family: "CourierNewBold" }
+);
 
-    .cyberpunk-button:hover::before {
-      opacity: 1;
-      animation: glitch 5s linear infinite;
-    }
+async function generateCyberpunkButton(text, link, filename) {
+  const width = 250;
+  const height = 60;
 
-    @keyframes glitch {
-      0% {
-        transform: translate(0);
-      }
-      20% {
-        transform: translate(-2px, 2px);
-      }
-      40% {
-        transform: translate(-2px, -2px);
-      }
-      60% {
-        transform: translate(2px, 2px);
-      }
-      80% {
-        transform: translate(2px, -2px);
-      }
-      100% {
-        transform: translate(0);
-      }
-    }
-  `;
+  const encoder = new GifEncoder(width, height);
+  const stream = encoder.createReadStream();
 
-  // Inject Styles
-  const styleSheet = document.createElement("style");
-  styleSheet.type = "text/css";
-  styleSheet.innerText = styles;
-  document.head.appendChild(styleSheet);
+  encoder.setDelay(200); // Faster glitch
+  encoder.setRepeat(0);
+  encoder.start();
 
-  // Button Data
-  const buttons = [
-    {
-      href: "http://www.linkedin.com/in/justinnl",
-      text: "LinkedIn",
-      target: "_blank"
-    },
-    {
-      href: "https://portfolio-web-mu-ten.vercel.app/",
-      text: "Website",
-      target: "_blank"
-    }
-  ];
+  for (let frameNum = 0; frameNum < 5; frameNum++) { // More frames for glitch
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext("2d");
 
-  // Glitch Text Function
-  function glitchText(element) {
-    const text = element.innerText;
-    let glitching = false;
+    // Background
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, width, height);
 
-    element.addEventListener('mouseover', () => {
-      if (glitching) return;
+    // Border
+    ctx.strokeStyle = '#00ff00';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, width, height);
 
-      glitching = true;
-      let glitchInterval = setInterval(() => {
-        let newText = '';
-        for (let i = 0; i < text.length; i++) {
-          const offset = Math.random() < 0.2 ? Math.floor(Math.random() * 6) - 3 : 0;
-          newText += `<span style="position: relative; top: ${offset}px; left: ${offset}px;">${text[i]}</span>`;
-        }
-        element.innerHTML = newText;
-      }, 100);
+    // Text
+    ctx.font = 'bold 20px CourierNewBold';
+    ctx.fillStyle = '#00ff00';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
-      setTimeout(() => {
-        clearInterval(glitchInterval);
-        element.innerHTML = text;
-        glitching = false;
-      }, 1000);
-    });
+    // "Glitched" Text
+    const glitchOffset = (Math.random() - 0.5) * 10; // Random offset
+    ctx.save();
+    ctx.translate(glitchOffset, glitchOffset);
+    ctx.fillText(text, width / 2, height / 2);
+    ctx.restore();
+
+    const imageData = ctx.getImageData(0, 0, width, height);
+    encoder.addFrame(imageData.data);
   }
 
-  // Create and Append Buttons
-  function createButtons() {
-    const container = document.createElement('div'); // Create a container for the buttons
-    container.style.display = 'flex'; // Use flexbox for horizontal layout
-    container.style.gap = '20px'; // Add some space between the buttons
-    container.style.justifyContent = 'center'; // Center the buttons horizontally
+  encoder.finish();
 
-    buttons.forEach(buttonData => {
-      const button = document.createElement('a');
-      button.href = buttonData.href;
-      button.text = buttonData.text;
-      button.className = "cyberpunk-button";
-      button.target = buttonData.target;
+  // Save the GIF
+  stream.pipe(fs.createWriteStream(filename));
 
-      glitchText(button); // Apply glitch effect
+  console.log(`Generated ${filename}`);
+}
 
-      container.appendChild(button); // Append to the container
-    });
+async function main() {
+  // Generate buttons
+  await generateCyberpunkButton("LinkedIn", "http://www.linkedin.com/in/justinnl", "linkedin-button.gif");
+  await generateCyberpunkButton("Website", "https://portfolio-web-mu-ten.vercel.app/", "website-button.gif");
 
-    // Append the container to the body (or any desired element)
-    document.body.appendChild(container);
-  }
+  console.log("All buttons generated!");
+}
 
-  // Run
-  createButtons();
-})();
+main();
