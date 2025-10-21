@@ -8,6 +8,7 @@ import personalWebsiteHandler from "./api/personalwebsite.js"; // personalwebsit
 import headerHandler from "./api/header.js";
 import languagesHandler from "./api/languages.js";
 import line1Handler from "./api/line1.js"; //blue line
+import personalWebsite2Handler from "./api/personalwebsite2.js";
 
 const app = express();
 
@@ -45,6 +46,7 @@ const routes = {
   header: headerHandler,           // GitHub header visual
   languages: languagesHandler,     // GitHub languages visual
   line1: line1Handler,
+  personalwebsite2: personalWebsite2Handler,
   // Add new visuals here:
   // "new-visual-name": newHandler,
 };
