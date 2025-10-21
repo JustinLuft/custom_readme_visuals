@@ -4,7 +4,7 @@ import express from "express";
 // IMPORT API HANDLERS
 // ----------------------
 import linkedinHandler from "./api/connect.js"; // LinkedIn visual
-import personalWebsiteHandler from "./api/personal-website.js"; // personalwebsite visual
+import personalWebsiteHandler from "./api/personalwebsite.js"; // personalwebsite visual
 import headerHandler from "./api/header.js";
 import languagesHandler from "./api/languages.js";
 import line1Handler from "./api/line1.js"; //blue line
