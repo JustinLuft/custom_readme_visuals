@@ -6,7 +6,6 @@ import fs from "fs";
 // ----------------------
 // FONT SETUP
 // ----------------------
-// Ensure the font file exists
 const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
 console.log("Font exists?", fs.existsSync(fontPath), fontPath);
 
@@ -17,14 +16,13 @@ registerFont(
 );
 
 // ----------------------
-// GIF HANDLER
+// CYBERPUNK PINK GIF HANDLER
 // ----------------------
 export default async function handler(req, res) {
   try {
-    // Scale up canvas to prevent serverless small-canvas issues
-    const baseWidth = 180;
-    const baseHeight = 50;
-    const scale = 4; // scales up to 720x200
+    const baseWidth = 300;   // slightly bigger for longer text
+    const baseHeight = 60;
+    const scale = 4; // scales up to 1200x240
     const width = baseWidth * scale;
     const height = baseHeight * scale;
 
@@ -35,7 +33,6 @@ export default async function handler(req, res) {
     const encoder = new GifEncoder(width, height);
     const chunks = [];
     const stream = encoder.createReadStream();
-
     stream.on("data", (chunk) => chunks.push(chunk));
 
     await new Promise((resolve, reject) => {
@@ -50,10 +47,10 @@ export default async function handler(req, res) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
-        // Background gradient
+        // Background gradient (cyberpunk purple)
         const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-        bgGrad.addColorStop(0, "#0a0a1a");
-        bgGrad.addColorStop(1, "#1a0a2e");
+        bgGrad.addColorStop(0, "#1a001a");
+        bgGrad.addColorStop(1, "#300030");
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, width, height);
 
@@ -67,7 +64,7 @@ export default async function handler(req, res) {
           ctx.stroke();
         }
 
-        // Border with glow
+        // Border with pink glow
         ctx.save();
         ctx.strokeStyle = color;
         ctx.lineWidth = 2 * scale;
@@ -77,7 +74,7 @@ export default async function handler(req, res) {
         ctx.restore();
 
         // Corner cut
-        ctx.fillStyle = "#0a0a1a";
+        ctx.fillStyle = "#1a001a";
         ctx.beginPath();
         ctx.moveTo(width - 12 * scale, height - 2 * scale);
         ctx.lineTo(width - 2 * scale, height - 2 * scale);
@@ -92,11 +89,11 @@ export default async function handler(req, res) {
         ctx.lineTo(width - 2 * scale, height - 12 * scale);
         ctx.stroke();
 
-        // Pulsing text
+        // Pulsing neon text
         const pulseIntensity = 15 + Math.sin(frameNum / 3) * 10;
 
         ctx.save();
-        ctx.font = `${16 * scale}px CourierNewBold`;
+        ctx.font = `${18 * scale}px CourierNewBold`; // slightly bigger font for longer text
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.shadowColor = color;
@@ -107,21 +104,21 @@ export default async function handler(req, res) {
         ctx.fillText(text, width / 2, height / 2);
         ctx.restore();
 
-        // White overlay
+        // White overlay for highlight
         ctx.save();
-        ctx.font = `${16 * scale}px CourierNewBold`;
+        ctx.font = `${18 * scale}px CourierNewBold`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#ffffff";
         ctx.fillText(text, width / 2, height / 2);
         ctx.restore();
 
-        // Scanline
+        // Scanline effect
         const scanY = (frameNum / 20) * (height + 4 * scale) - 2 * scale;
         ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
         ctx.fillRect(0, scanY, width, 2 * scale);
 
-        // Add frame via canvas context (more stable than raw data)
+        // Add frame via canvas context
         encoder.addFrame(ctx);
       }
 
