@@ -22,7 +22,7 @@ registerFont(
 export default async function handler(req, res) {
   try {
     // Scale up canvas to prevent serverless small-canvas issues
-    const baseWidth = 180;
+    const baseWidth = 220;
     const baseHeight = 50;
     const scale = 4; // scales up to 720x200
     const width = baseWidth * scale;
