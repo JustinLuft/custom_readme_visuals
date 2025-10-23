@@ -28,9 +28,9 @@ export default async function handler(req, res) {
     const width = baseWidth * scale;
     const height = baseHeight * scale;
 
-    const text = "LINKEDIN";
-    const color = "#00ffff";
-    const colorRGB = "0, 255, 255";
+    const text = "PERSONAL WEBSITE";
+    const color = "#ff00ff"; // neon pink
+    const colorRGB = "255, 0, 255";
 
     const encoder = new GifEncoder(width, height);
     const chunks = [];
