@@ -11,5 +11,6 @@
     { "src": "/api/header", "dest": "/api/header.js" },
     { "src": "/api/languages", "dest": "/api/languages.js" },
     { "src": "/api/line1", "dest": "/api/line1.js" }
-  ]
+  ],
+  "outputDirectory": "" 
 }
