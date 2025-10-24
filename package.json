@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@skyra/gifenc": "^1.0.1",
-    "canvas": "^3.2.0"
-  }
-}
