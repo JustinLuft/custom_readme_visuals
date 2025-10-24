@@ -7,29 +7,28 @@ import fs from "fs";
 // FONT SETUP
 // ----------------------
 const fontPath = path.join(process.cwd(), "fonts", "CourierNewBold.ttf");
-console.log("Font exists?", fs.existsSync(fontPath), fontPath);
-
-// Register font
-registerFont(
-  path.join(process.cwd(), "dynamic-visual", "fonts", "CourierNewBold.ttf"),
-  { family: "CourierNewBold" }
-);
+if (!fs.existsSync(fontPath)) {
+  console.error("Font not found! Falling back to system font.");
+}
+registerFont(fontPath, { family: "CourierNewBold" });
 
 // ----------------------
-// CYBERPUNK PINK GIF HANDLER
+// GIF HANDLER
 // ----------------------
 export default async function handler(req, res) {
   try {
-    const baseWidth = 300;   // slightly bigger for longer text
-    const baseHeight = 60;
-    const scale = 4; // scales up to 1200x240
+    // Canvas size and scaling
+    const baseWidth = 220;
+    const baseHeight = 50;
+    const scale = 2; // reduced scale for faster rendering
     const width = baseWidth * scale;
     const height = baseHeight * scale;
 
     const text = "PERSONAL WEBSITE";
-    const color = "#ff00ff"; // neon pink
+    const color = "#ff00ff";
     const colorRGB = "255, 0, 255";
 
+    // Encoder
     const encoder = new GifEncoder(width, height);
     const chunks = [];
     const stream = encoder.createReadStream();
@@ -43,82 +42,45 @@ export default async function handler(req, res) {
       encoder.setRepeat(0);
       encoder.start();
 
-      for (let frameNum = 0; frameNum < 20; frameNum++) {
+      // Reduce frames for faster rendering
+      const totalFrames = 10;
+      for (let frameNum = 0; frameNum < totalFrames; frameNum++) {
         const canvas = createCanvas(width, height);
         const ctx = canvas.getContext("2d");
 
-        // Background gradient (cyberpunk purple)
+        // Background gradient
         const bgGrad = ctx.createLinearGradient(0, 0, width, height);
-        bgGrad.addColorStop(0, "#1a001a");
-        bgGrad.addColorStop(1, "#300030");
+        bgGrad.addColorStop(0, "#0a0a1a");
+        bgGrad.addColorStop(1, "#1a0a2e");
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, width, height);
 
-        // Grid
-        ctx.strokeStyle = `rgba(${colorRGB}, 0.08)`;
-        ctx.lineWidth = 0.5 * scale;
-        for (let i = 0; i < height; i += 10 * scale) {
-          ctx.beginPath();
-          ctx.moveTo(0, i);
-          ctx.lineTo(width, i);
-          ctx.stroke();
-        }
-
-        // Border with pink glow
+        // Border glow
         ctx.save();
         ctx.strokeStyle = color;
         ctx.lineWidth = 2 * scale;
         ctx.shadowColor = color;
-        ctx.shadowBlur = 10 * scale;
+        ctx.shadowBlur = 5 * scale;
         ctx.strokeRect(2 * scale, 2 * scale, width - 4 * scale, height - 4 * scale);
         ctx.restore();
 
-        // Corner cut
-        ctx.fillStyle = "#1a001a";
-        ctx.beginPath();
-        ctx.moveTo(width - 12 * scale, height - 2 * scale);
-        ctx.lineTo(width - 2 * scale, height - 2 * scale);
-        ctx.lineTo(width - 2 * scale, height - 12 * scale);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2 * scale;
-        ctx.beginPath();
-        ctx.moveTo(width - 12 * scale, height - 2 * scale);
-        ctx.lineTo(width - 2 * scale, height - 12 * scale);
-        ctx.stroke();
-
-        // Pulsing neon text
-        const pulseIntensity = 15 + Math.sin(frameNum / 3) * 10;
-
+        // Text with pulsing shadow
+        const pulse = 10 + Math.sin(frameNum / 2) * 5;
         ctx.save();
-        ctx.font = `${18 * scale}px CourierNewBold`; // slightly bigger font for longer text
+        ctx.font = `${16 * scale}px CourierNewBold`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.shadowColor = color;
-        ctx.shadowBlur = pulseIntensity * scale;
         ctx.fillStyle = color;
-        ctx.fillText(text, width / 2, height / 2);
-        ctx.shadowBlur = (pulseIntensity + 10) * scale;
-        ctx.fillText(text, width / 2, height / 2);
-        ctx.restore();
-
-        // White overlay for highlight
-        ctx.save();
-        ctx.font = `${18 * scale}px CourierNewBold`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = color;
+        ctx.shadowBlur = pulse * scale;
         ctx.fillText(text, width / 2, height / 2);
         ctx.restore();
 
         // Scanline effect
-        const scanY = (frameNum / 20) * (height + 4 * scale) - 2 * scale;
-        ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+        const scanY = (frameNum / totalFrames) * (height + 2 * scale) - scale;
+        ctx.fillStyle = "rgba(255,255,255,0.1)";
         ctx.fillRect(0, scanY, width, 2 * scale);
 
-        // Add frame via canvas context
         encoder.addFrame(ctx);
       }
 
@@ -126,12 +88,29 @@ export default async function handler(req, res) {
     });
 
     const buffer = Buffer.concat(chunks);
-    res.setHeader("Content-Type", "image/gif");
-    res.setHeader("Cache-Control", "public, max-age=86400");
-    res.send(buffer);
 
+    // ✅ Headers for GitHub caching
+    res.setHeader("Content-Type", "image/gif");
+    res.setHeader(
+      "Cache-Control",
+      "public, max-age=86400, stale-while-revalidate=43200"
+    );
+
+    res.send(buffer);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+
+    // ✅ Fallback GIF if something fails
+    const fallbackPath = path.join(process.cwd(), "public", "fallback.gif");
+    if (fs.existsSync(fallbackPath)) {
+      res.setHeader("Content-Type", "image/gif");
+      res.setHeader(
+        "Cache-Control",
+        "public, max-age=86400, stale-while-revalidate=43200"
+      );
+      res.send(fs.readFileSync(fallbackPath));
+    } else {
+      res.status(500).json({ error: "Failed to generate GIF" });
+    }
   }
 }
